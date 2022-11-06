@@ -1,5 +1,7 @@
 package channel;
 
+import lombok.Data;
+
 import java.nio.ByteBuffer;
 
 /**
