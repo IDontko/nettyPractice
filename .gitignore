@@ -4,7 +4,7 @@
 /.idea/
 # Log file
 *.log
-
+*.xml
 /target/
 
 # BlueJ files
@@ -15,7 +15,7 @@
 
 # Package Files #
 *.jar
-*.war
+*.war:q
 *.nar
 *.ear
 *.zip

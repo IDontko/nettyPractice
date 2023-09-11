@@ -5,13 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.*;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author gaoyang
@@ -46,7 +47,7 @@ public class Server {
         Selector selector = Selector.open();
         //创建服务器
         ServerSocketChannel ssc = ServerSocketChannel.open();
-        ssc.configureBlocking(false);
+        ssc.configureBlocking(false);//非阻塞模式
         SelectionKey sscKey = ssc.register(selector, 0, null);
         log.debug("register key: {}", sscKey);
         sscKey.interestOps(SelectionKey.OP_ACCEPT);
@@ -114,7 +115,7 @@ public class Server {
         //3.建立链接
         List<SocketChannel> channels = new ArrayList<>();
         while (true){
-            //4.accept 建立与客户端的连接，SocketChannel 用来与客户端通信
+            //  ccept 建立与客户端的连接，SocketChannel 用来与客户端通信
             log.debug("connecting");
             SocketChannel sc = ssc.accept();//阻塞方法，线程停止运行
             log.debug("connected.. {}", sc);
@@ -198,11 +199,22 @@ public class Server {
 
                     log.debug("sc: {}", sc);
                 }else if (key.isReadable()){
-                    SocketChannel channel = (SocketChannel) key.channel();
-                    ByteBuffer buffer = ByteBuffer.allocate(16);
-                    channel.read(buffer);
-                    buffer.flip();
-                    ByteBufferUtil.debugRead(buffer);
+                    try {
+                        SocketChannel channel = (SocketChannel) key.channel();
+                        ByteBuffer buffer = ByteBuffer.allocate(16);
+                        int  read = channel.read(buffer); //如果是正常断开 ，read方法返回值是-1
+                        if (read == -1){
+                            key.cancel();
+                        }else {
+                            buffer.flip();
+                            ByteBufferUtil.debugRead(buffer);
+                        }
+
+                    }catch (IOException e){
+                        e.printStackTrace();
+                        key.cancel();
+                    }
+
 
                 }
 

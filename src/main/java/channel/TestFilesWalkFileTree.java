@@ -11,14 +11,33 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TestFilesWalkFileTree {
     public static void main(String[] args) throws IOException {
-        m1();
+//        m1();
+        m2();
     }
 
+
+    private static void  m2() throws IOException{
+        AtomicInteger jarCount  = new AtomicInteger();
+        Files.walkFileTree(Paths.get("D:\\w_work\\s_softerware\\j_jdk1.8"), new SimpleFileVisitor<Path>(){
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                if (file.toString().endsWith(".jar")){
+                    System.out.println(file);
+                    jarCount.incrementAndGet();
+                }
+                return super.visitFile(file, attrs);
+            }
+
+        });
+        System.out.println("jar count: " +jarCount);
+
+    }
     //遍历目录
     private static void m1() throws IOException {
         AtomicInteger dirCount = new AtomicInteger();
         AtomicInteger fileCount = new AtomicInteger();
-        Files.walkFileTree(Paths.get("D:\\Work_SoftWare\\C_charles"), new SimpleFileVisitor<Path>(){
+        Files.walkFileTree(Paths.get("D:\\w_work\\s_softerware\\j_jdk1.8"), new SimpleFileVisitor<Path>(){
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
                     throws IOException
